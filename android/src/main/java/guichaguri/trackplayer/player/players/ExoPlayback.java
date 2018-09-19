@@ -57,9 +57,11 @@ public class ExoPlayback extends Playback implements EventListener {
         int maxBuffer = (int)Utils.toMillis(options.getDouble("maxBuffer", Utils.toSeconds(DEFAULT_MAX_BUFFER_MS)));
         long playBuffer = Utils.toMillis(options.getDouble("playBuffer", Utils.toSeconds(DEFAULT_BUFFER_FOR_PLAYBACK_MS)));
         int multiplier = DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS / DEFAULT_BUFFER_FOR_PLAYBACK_MS;
+        int targetBufferBytes = DEFAULT_TARGET_BUFFER_BYTES;
+        boolean prioritizeTimeOverSizeThresholds = DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS;
 
         DefaultAllocator allocator = new DefaultAllocator(true, 0x10000);
-        LoadControl control = new DefaultLoadControl(allocator, minBuffer, maxBuffer, playBuffer, playBuffer * multiplier);
+        LoadControl control = new DefaultLoadControl(allocator, minBuffer, maxBuffer, (int)playBuffer, (int)(playBuffer * multiplier), targetBufferBytes, prioritizeTimeOverSizeThresholds);
 
         player = ExoPlayerFactory.newSimpleInstance(new DefaultRenderersFactory(context), new DefaultTrackSelector(), control);
         player.setAudioStreamType(C.STREAM_TYPE_MUSIC);
@@ -196,7 +198,7 @@ public class ExoPlayback extends Playback implements EventListener {
     }
 
     @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest) {
+    public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
 
     }
 
@@ -232,6 +234,16 @@ public class ExoPlayback extends Playback implements EventListener {
     }
 
     @Override
+    public void onRepeatModeChanged(int repeatMode) {
+
+    }
+
+    @Override
+    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+
+    }
+
+    @Override
     public void onPlayerError(ExoPlaybackException error) {
         Utils.rejectCallback(loadCallback, error);
         loadCallback = null;
@@ -240,7 +252,7 @@ public class ExoPlayback extends Playback implements EventListener {
     }
 
     @Override
-    public void onPositionDiscontinuity() {
+    public void onPositionDiscontinuity(int reason) {
 
     }
 
@@ -249,4 +261,8 @@ public class ExoPlayback extends Playback implements EventListener {
 
     }
 
+    @Override
+    public void onSeekProcessed() {
+
+    }
 }
